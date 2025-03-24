@@ -25,13 +25,16 @@ public class Util {
         return connection;
 
     }
-    public void closeConnection(Connection connection) {
+    public static void closeConnection(Connection connection) {
         try {
             if (connection != null) {
                 connection.close();
+                System.out.println("Соединение разорвано!");
             }
         } catch (SQLException e) {
             System.out.println("Ошибка при закрытии соединения: " + e.getMessage());
         }
     }
+
+
 }

@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     public List<User> getAllUsers() {
         List<User> users = userDao.getAllUsers();
-        System.out.println("Current users in the database: " + users);
+        System.out.println("Текущие пользователи в базе данных: " + users);
         return users;
     }
 
