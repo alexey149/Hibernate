@@ -1,12 +1,18 @@
 package jm.task.core.jdbc.util;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class Util {
     // реализуйте настройку соеденения с БД
     private final static String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private final static String URL = "jdbc:mysql://localhost:3306/usersDB";
+    private final static String URL = "jdbc:mysql://localhost:3306/users";
     private final static String USERNAME = "root";
     private final static String PASSWORD = "root";
 
@@ -35,6 +41,7 @@ public class Util {
             System.out.println("Ошибка при закрытии соединения: " + e.getMessage());
         }
     }
+
 
 
 }

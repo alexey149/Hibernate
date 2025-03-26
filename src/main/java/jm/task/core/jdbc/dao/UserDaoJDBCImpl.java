@@ -7,70 +7,64 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDaoJDBCImpl  implements UserDao {
-    public UserDaoJDBCImpl() {}
-    Connection connection = Util.getConnection();
+public class UserDaoJDBCImpl implements UserDao {
+    public UserDaoJDBCImpl() {
+    }
+
+    private static final Connection connection = Util.getConnection();
 
 
     public void createUsersTable() { // создать таблицу пользователей
 
-        String sqlCommand = "CREATE TABLE USERSDB (ID INT AUTO_INCREMENT PRIMARY KEY," +
+        String sqlCommand = "CREATE TABLE IF NOT EXISTS USERS (ID INT AUTO_INCREMENT PRIMARY KEY," +
                 "NAME VARCHAR(45) NOT NULL," +
                 "LASTNAME VARCHAR(45) NOT NULL," +
-                "AGE INT NULL)";
+                "AGE INT(2) NOT NULL)";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlCommand);
-            System.out.println("Таблица создана!");
         } catch (SQLException e) {
-            System.out.println("Соединение не удалось: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void dropUsersTable() {  // удалить таблицу пользователей
-        String sqlCommand = "DROP TABLE IF EXISTS USERSDB";
+        String sqlCommand = "DROP TABLE IF EXISTS USERS";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlCommand);
-            System.out.println("Таблица пользователей успешно удалена!");
         } catch (SQLException e) {
-            System.out.println("Ошибка при удалении таблицы: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {  //сохранить пользователя
-        String sqlCommand = "INSERT INTO USERSDB (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
+        String sqlCommand = "INSERT INTO USERS (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand)) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
-            System.out.println("Пользователь " + name + " " + lastName + " добавлен в базу данных!");
         } catch (SQLException e) {
-            System.out.println("Ошибка при сохранении пользователя: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public void removeUserById(long id) {  // удалить пользователя по идентификатору
-        String sqlCommand = "DELETE FROM USERSDB WHERE ID = ?";
+        String sqlCommand = "DELETE FROM USERS WHERE ID = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand)) {
             preparedStatement.setLong(1, id);
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Пользователь с ID " + id + " успешно удален!");
-            } else {
-                System.out.println("Пользователь с ID " + id + " не найде!");
-            }
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Ошибка при удалении пользователя: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public List<User> getAllUsers() {  // получить всех пользователей
         List<User> users = new ArrayList<>();
-        String sqlCommand = "SELECT * FROM USERSDB";
+        String sqlCommand = "SELECT * FROM USERS";
 
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sqlCommand)) {
@@ -83,19 +77,17 @@ public class UserDaoJDBCImpl  implements UserDao {
                 users.add(user);
             }
         } catch (SQLException e) {
-            System.out.println("Ошибка при получении пользователей: " + e.getMessage());
+            e.printStackTrace();
         }
         return users;
     }
 
     public void cleanUsersTable() {  // почистить таблицу пользователей
-        String sqlCommand = "DELETE FROM USERSDB";
-
-        try (Statement statement = connection.createStatement()){
+        String sqlCommand = "DELETE FROM USERS";
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlCommand);
-            System.out.println("Таблица пользователей очищена!");
-        }catch (SQLException e){
-            System.out.println("Ошибка при очистке таблицы: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
