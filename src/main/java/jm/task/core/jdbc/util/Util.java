@@ -1,4 +1,5 @@
 package jm.task.core.jdbc.util;
+
 import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -17,7 +18,7 @@ public class Util {
     private final static String PASSWORD = "root";
 
     public static Connection getConnection() {
-        Connection connection = null ;
+        Connection connection = null;
         try {
             Class.forName(DRIVER);
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
@@ -31,6 +32,7 @@ public class Util {
         return connection;
 
     }
+
     public static void closeConnection(Connection connection) {
         try {
             if (connection != null) {
@@ -42,6 +44,31 @@ public class Util {
         }
     }
 
+    private static SessionFactory sessionFactory = null;
 
+    static {
+        try {
+            Properties settings = new Properties();
+            settings.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/users");
+            settings.setProperty("hibernate.connection.username", "root");
+            settings.setProperty("hibernate.connection.password", "root");
+            settings.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
+            settings.setProperty("hibernate.hbm2ddl.auto", "create");
 
+            sessionFactory = new org.hibernate.cfg.Configuration()
+                    .addProperties(settings)
+                    .addAnnotatedClass(User.class)
+                    .buildSessionFactory();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Session getSession() throws HibernateException {
+        return sessionFactory.openSession();
+    }
+
+    public static void close() throws HibernateException {
+        getSession().close();
+    }
 }

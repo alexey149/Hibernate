@@ -7,87 +7,85 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDaoJDBCImpl implements UserDao {
-    public UserDaoJDBCImpl() {
-    }
 
+public class UserDaoJDBCImpl implements UserDao {
     private static final Connection connection = Util.getConnection();
 
 
-    public void createUsersTable() { // создать таблицу пользователей
+    public UserDaoJDBCImpl() {
 
-        String sqlCommand = "CREATE TABLE IF NOT EXISTS USERS (ID INT AUTO_INCREMENT PRIMARY KEY," +
-                "NAME VARCHAR(45) NOT NULL," +
-                "LASTNAME VARCHAR(45) NOT NULL," +
-                "AGE INT(2) NOT NULL)";
+    }
 
+    public void createUsersTable() {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlCommand);
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS users" + "(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), lastname VARCHAR(20), age INT(2))");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void dropUsersTable() {  // удалить таблицу пользователей
-        String sqlCommand = "DROP TABLE IF EXISTS USERS";
-
+    public void dropUsersTable() {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlCommand);
+            statement.executeUpdate("DROP TABLE IF EXISTS users");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) {  //сохранить пользователя
-        String sqlCommand = "INSERT INTO USERS (NAME, LASTNAME, AGE) VALUES (?, ?, ?)";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand)) {
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, lastName);
-            preparedStatement.setByte(3, age);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void saveUser(String name, String lastName, byte age) {
+        try (PreparedStatement pstm = connection.prepareStatement("INSERT INTO users ( name, lastname, age) VALUES (?,?,?)")) {
+            pstm.setString(1, name);
+            pstm.setString(2, lastName);
+            pstm.setByte(3, age);
+            pstm.executeUpdate();
+        } catch (SQLException s) {
+            s.printStackTrace();
         }
     }
 
-    public void removeUserById(long id) {  // удалить пользователя по идентификатору
-        String sqlCommand = "DELETE FROM USERS WHERE ID = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand)) {
-            preparedStatement.setLong(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void removeUserById(long id) throws SQLException {
+        Statement statement = connection.createStatement();
+        long userCount = 0;
+        ResultSet resultSet = statement.executeQuery("SELECT id from users");
+        while (resultSet.next()) {
+            userCount = resultSet.getLong(1);
         }
-    }
-
-    public List<User> getAllUsers() {  // получить всех пользователей
-        List<User> users = new ArrayList<>();
-        String sqlCommand = "SELECT * FROM USERS";
-
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sqlCommand)) {
-            while (resultSet.next()) {
-                long id = resultSet.getLong("ID");
-                String name = resultSet.getString("NAME");
-                String lastNAme = resultSet.getString("LASTNAME");
-                byte age = resultSet.getByte("AGE");
-                User user = new User(name, lastNAme, age);
-                users.add(user);
+        statement.close();
+        if (id <= userCount) {
+            try (PreparedStatement pstm = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
+                pstm.setLong(1, id);
+                pstm.executeUpdate();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            System.out.println("User с данным id не существует");
         }
-        return users;
     }
 
-    public void cleanUsersTable() {  // почистить таблицу пользователей
-        String sqlCommand = "DELETE FROM USERS";
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlCommand);
+            ResultSet resultSet = statement.executeQuery("SELECT * from users");
+            while (resultSet.next()) {
+                User user = new User(resultSet.getString("name"),
+                        resultSet.getString("lastname"),
+                        resultSet.getByte("age"));
+                user.setId(resultSet.getLong("id"));
+                userList.add(user);
+
+            }
+        } catch (SQLException s) {
+            s.printStackTrace();
+        }
+        return userList;
+
+    }
+
+    public void cleanUsersTable() {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("TRUNCATE TABLE users");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 }
