@@ -15,7 +15,8 @@ public class User {
     @Column
     private Byte age;
 
-    public User() {}
+    public User() {
+    }
 
     public User(String name, String lastName, Byte age) {
         this.name = name;
@@ -31,7 +32,7 @@ public class User {
         this.id = id;
     }
 
-    public  String getName() {
+    public String getName() {
         return name;
     }
 
@@ -57,6 +58,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", name='" + name + "'}";
+        return String.format("User {id = '%s', name = '%s', lastName = '%s', age = '%d'}",
+                getId(), getName(), getLastName(), getAge());
     }
 }
