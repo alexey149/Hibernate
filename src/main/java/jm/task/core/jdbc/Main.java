@@ -1,14 +1,16 @@
 package jm.task.core.jdbc;
 
-import jm.task.core.jdbc.service.UserService;
+import jm.task.core.jdbc.dao.UserDao;
+import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.service.UserServiceImpl;
+import jm.task.core.jdbc.util.Util;
 
-import java.sql.SQLException;
 
 public class Main {
-    public static UserService userService = new UserServiceImpl();
+    public static UserServiceImpl userService = new UserServiceImpl();
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
+
 
         userService.createUsersTable();
         userService.saveUser("Shack", "Onel", (byte) 55);
@@ -19,5 +21,7 @@ public class Main {
         userService.getAllUsers();
         userService.cleanUsersTable();
         userService.dropUsersTable();
+
+        Util.closeConnection(Util.getConnection());
     }
 }
