@@ -1,57 +1,46 @@
 package jm.task.core.jdbc.util;
 
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import java.util.Properties;
 import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
+
 
 public class Util {
-    // реализуйте настройку соеденения с БД
-    private final static String DRIVER = "com.mysql.cj.jdbc.Driver";
-    private final static String URL = "jdbc:mysql://localhost:3306/users";
-    private final static String USERNAME = "root";
-    private final static String PASSWORD = "root";
+
+    private static final String url = "jdbc:mysql://localhost:3306/users";
+    private static final String user = "admin";
+    private static final String password = "admin";
+
 
     public static Connection getConnection() {
-        Connection connection = null;
+        Connection con = null;
         try {
-            Class.forName(DRIVER);
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            if (!connection.isClosed()) {
-                System.out.println("Соединение с БД Установлено!");
-            }
-        } catch (
-                SQLException | ClassNotFoundException e) {
-            System.out.println("Соединение с БД Закрыто!");
-        }
-        return connection;
+            con = DriverManager.getConnection(url, user, password);
+            if (!con.isClosed()) {
+                System.out.println("Соединение с БД установлено");
 
-    }
-
-    public static void closeConnection(Connection connection) {
-        try {
-            if (connection != null) {
-                connection.close();
-                System.out.println("Соединение разорвано!");
             }
-        } catch (SQLException e) {
-            System.out.println("Ошибка при закрытии соединения: " + e.getMessage());
+        } catch (SQLException s) {
+            System.err.println("Не удалось загрузить класс драйвера БД");
         }
+        return con;
     }
 
     private static SessionFactory sessionFactory = null;
-
-    static {
+    static  {
         try {
             Properties settings = new Properties();
             settings.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/users");
-            settings.setProperty("hibernate.connection.username", "root");
-            settings.setProperty("hibernate.connection.password", "root");
+            settings.setProperty("hibernate.connection.username", "admin");
+            settings.setProperty("hibernate.connection.password", "admin");
             settings.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
             settings.setProperty("hibernate.hbm2ddl.auto", "create");
 
@@ -63,12 +52,12 @@ public class Util {
             e.printStackTrace();
         }
     }
-
-    public static Session getSession() throws HibernateException {
+    public static Session getSession() throws HibernateException{
         return sessionFactory.openSession();
     }
 
-    public static void close() throws HibernateException {
+    public static void close() throws HibernateException{
         getSession().close();
     }
+
 }
