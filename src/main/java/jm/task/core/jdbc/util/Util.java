@@ -16,8 +16,8 @@ import org.hibernate.SessionFactory;
 public class Util {
 
     private static final String url = "jdbc:mysql://localhost:3306/users";
-    private static final String user = "admin";
-    private static final String password = "admin";
+    private static final String user = "root";
+    private static final String password = "root";
 
 
     public static Connection getConnection() {
