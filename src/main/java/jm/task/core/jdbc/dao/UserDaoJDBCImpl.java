@@ -43,22 +43,14 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public void removeUserById(long id) throws SQLException {
-        Statement statement = connection.createStatement();
-        long userCount = 0;
-        ResultSet resultSet = statement.executeQuery("SELECT id from users");
-        while (resultSet.next()) {
-            userCount = resultSet.getLong(1);
+    public void removeUserById(long id)  {
+        try (PreparedStatement pstm = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
+            pstm.setLong(1, id);
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        statement.close();
-        if (id <= userCount) {
-            try (PreparedStatement pstm = connection.prepareStatement("DELETE FROM users WHERE id = ?")) {
-                pstm.setLong(1, id);
-                pstm.executeUpdate();
-            }
-        } else {
-            System.out.println("User с данным id не существует");
-        }
+
     }
 
     public List<User> getAllUsers() {
