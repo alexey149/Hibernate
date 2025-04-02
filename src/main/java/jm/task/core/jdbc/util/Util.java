@@ -4,6 +4,7 @@ import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,7 +31,6 @@ public class Util {
             System.out.println("Соединение с БД Закрыто!");
         }
         return connection;
-
     }
 
     public static void closeConnection(Connection connection) {
@@ -44,18 +44,18 @@ public class Util {
         }
     }
 
-    private static SessionFactory sessionFactory = null;
+    private static SessionFactory sessionFactory;
 
     static {
         try {
             Properties settings = new Properties();
-            settings.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/users");
-            settings.setProperty("hibernate.connection.username", "root");
-            settings.setProperty("hibernate.connection.password", "root");
-            settings.setProperty("dialect", "org.hibernate.dialect.MySQLDialect");
-            settings.setProperty("hibernate.hbm2ddl.auto", "create");
+            settings.setProperty("hibernate.connection.driver_class", DRIVER);
+            settings.setProperty("hibernate.connection.url", URL);
+            settings.setProperty("hibernate.connection.username", USERNAME);
+            settings.setProperty("hibernate.connection.password", PASSWORD);
 
-            sessionFactory = new org.hibernate.cfg.Configuration()
+
+            sessionFactory = new Configuration()
                     .addProperties(settings)
                     .addAnnotatedClass(User.class)
                     .buildSessionFactory();
@@ -64,11 +64,13 @@ public class Util {
         }
     }
 
-    public static Session getSession() throws HibernateException {
-        return sessionFactory.openSession();
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
     }
 
     public static void close() throws HibernateException {
-        getSession().close();
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
+            sessionFactory.close();
+        }
     }
 }
